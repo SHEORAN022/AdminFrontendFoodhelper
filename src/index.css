@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@media print {
+  body {
+    margin: 0;
+    background: white;
+  }
+
+  .print\:hidden {
+    display: none !important;
+  }
+
+  .shadow {
+    box-shadow: none !important;
+  }
+
+  .rounded-lg {
+    border-radius: 0 !important;
+  }
+
+  .max-w-4xl {
+    max-width: 100% !important;
+  }
+}

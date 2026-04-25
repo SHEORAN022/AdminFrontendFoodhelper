@@ -1,0 +1,131 @@
+/* Container styling to match TailAdmin Cards */
+.tm-analytics-wrapper {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.05);
+  font-family: "Inter", sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header with Title and Filters */
+.tm-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 16px;
+}
+
+.tm-card-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1c2434;
+  margin: 0;
+}
+
+.tm-card-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+/* Filter Row - Optimized for Mobile & Desktop */
+.tm-filter-section {
+  display: flex;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+
+.tm-select-wrapper select {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+  color: #1c2434;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  min-width: 140px;
+  transition: all 0.2s ease;
+}
+
+.tm-select-wrapper select:focus {
+  border-color: #3c50e0;
+  background-color: #fff;
+}
+
+/* Chart Canvas Wrapper */
+.tm-chart-container {
+  height: 420px;
+  width: 100%;
+  position: relative;
+}
+
+.tm-canvas-wrapper {
+  height: 100%;
+  width: 100%;
+}
+
+/* Loading & Empty States */
+.tm-loading-state,
+.tm-no-data {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  font-size: 16px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3c50e0;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive Mobile Adjustments */
+@media (max-width: 768px) {
+  .tm-analytics-wrapper {
+    padding: 16px;
+  }
+
+  .tm-card-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .tm-filter-section {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 5px;
+  }
+
+  .tm-select-wrapper select {
+    min-width: 120px;
+    font-size: 12px;
+  }
+
+  .tm-chart-container {
+    height: 300px;
+  }
+}

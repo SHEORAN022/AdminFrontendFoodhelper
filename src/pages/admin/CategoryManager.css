@@ -1,0 +1,509 @@
+:root {
+  --primary: #3c50e0;
+  --bg-page: #f1f5f9;
+  --white: #ffffff;
+  --border: #e2e8f0;
+  --text-dark: #1c2434;
+  --text-slate: #64748b;
+  --danger: #e11d48;
+}
+
+/* 1. Page Wrapper with left/right spacing */
+.tm-wrapper {
+  padding: 30px 60px;
+  /* Spacing for Desktop */
+  background-color: var(--bg-page);
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Header */
+.tm-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.tm-title-box h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+.tm-title-box p {
+  color: var(--text-slate);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+/* Buttons */
+.tm-btn-primary {
+  background: var(--primary);
+  color: var(--white);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tm-btn-save {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.tm-btn-cancel {
+  background: #f1f5f9;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Cards */
+.tm-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+/* Inline Form */
+.tm-form-card {
+  padding: 20px;
+}
+
+.tm-grid-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 15px;
+  align-items: flex-end;
+}
+
+.tm-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tm-input-group label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.tm-input-group input {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+/* Table Section */
+.tm-table-toolbar {
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tm-search-wrapper {
+  position: relative;
+  width: 300px;
+  display: flex;
+  align-items: center;
+}
+
+.tm-search-wrapper svg {
+  position: absolute;
+  left: 12px;
+  color: var(--text-slate);
+}
+
+.tm-search-wrapper input {
+  width: 100%;
+  padding: 10px 10px 10px 40px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  outline: none;
+}
+
+/* Responsive Table */
+.tm-responsive-table {
+  overflow-x: auto;
+}
+
+.tm-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+.tm-table th {
+  background: #f7f9fc;
+  padding: 15px 25px;
+  text-align: left;
+  font-size: 13px;
+  color: var(--text-slate);
+  text-transform: uppercase;
+}
+
+.tm-table td {
+  padding: 15px 25px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tm-item-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tm-img-container {
+  width: 45px;
+  height: 45px;
+  border-radius: 8px;
+  background: #eee;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tm-img-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tm-item-name {
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.tm-pill-btn {
+  background: #eff6ff;
+  color: var(--primary);
+  border: 1px solid #dbeafe;
+  padding: 5px 12px;
+  border-radius: 50px;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tm-badge-active {
+  background: #e0e7ff;
+  color: var(--primary);
+  padding: 4px 10px;
+  border-radius: 50px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* 2. Action Column Alignment (Inward) */
+.tm-action-header {
+  text-align: center !important;
+  width: 150px;
+}
+
+.tm-action-cell {
+  text-align: center;
+  padding-right: 50px !important;
+}
+
+.tm-dots-container {
+  position: relative;
+  display: inline-block;
+}
+
+.tm-dots-icon {
+  cursor: pointer;
+  color: var(--text-slate);
+}
+
+.tm-dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  width: 130px;
+  padding: 5px;
+}
+
+.tm-dropdown-menu button {
+  width: 100%;
+  padding: 8px;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  border-radius: 4px;
+}
+
+.tm-dropdown-menu button:hover {
+  background: #f8fafc;
+  color: var(--primary);
+}
+
+/* Subcategory Expanded View */
+.tm-expand-row {
+  background: #fcfdfe;
+}
+
+.tm-sub-container {
+  padding: 20px;
+  background: #f8fafc;
+  border-radius: 12px;
+  margin: 10px 25px;
+  border: 1px dashed var(--border);
+}
+
+.tm-sub-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.tm-sub-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tm-sub-item {
+  display: flex;
+  justify-content: space-between;
+  background: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.tm-sub-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tm-sub-left img {
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.tm-sub-right {
+  display: flex;
+  gap: 15px;
+  color: var(--text-slate);
+  cursor: pointer;
+}
+
+.tm-sub-add-form {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.tm-sub-add-form input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.tm-sub-add-form button {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 0 15px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Pagination */
+.tm-pagination {
+  padding: 20px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tm-pagination-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.tm-pagination-btns button {
+  padding: 6px 15px;
+  border: 1px solid var(--border);
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.tm-pagination-btns button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Modal Styles */
+.tm-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(3px);
+}
+
+.tm-modal {
+  background: white;
+  width: 90%;
+  max-width: 450px;
+  border-radius: 15px;
+  padding: 25px;
+}
+
+.tm-modal-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.tm-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.tm-form-group input {
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.tm-modal-preview {
+  width: 100px;
+  height: 100px;
+  border-radius: 10px;
+  object-fit: cover;
+  margin-top: 10px;
+}
+
+.tm-modal-footer {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 1024px) {
+  .tm-wrapper {
+    padding: 20px 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .tm-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+
+  .tm-grid-form {
+    grid-template-columns: 1fr;
+  }
+
+  .tm-search-wrapper {
+    width: 100%;
+  }
+
+  .tm-sub-container {
+    margin: 10px;
+  }
+}
+
+.text-red {
+  color: var(--danger) !important;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+/* ═══════════════════════════════════════════════════════════
+   ADD THESE RULES AT THE BOTTOM OF YOUR CategoryManager.css
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Small pill variant (inside sub panel) ── */
+.tm-pill-sm {
+  font-size: 11px;
+  padding: 3px 9px;
+  gap: 4px;
+  margin-left: 8px;
+  background: #ede9fe;
+  color: #6d28d9;
+  border: 1px solid #c4b5fd;
+}
+.tm-pill-sm:hover { background: #ddd6fe; }
+
+/* ── Level 3 Sub-Subcategory Panel ── */
+.tm-subsub-panel {
+  margin: 6px 0 6px 18px;
+  padding: 12px 14px;
+  background: #f5f3ff;
+  border-left: 3px solid #818cf8;
+  border-radius: 0 10px 10px 0;
+}
+
+.tm-subsub-title {
+  font-size: 12px;
+  color: #6366f1;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+/* ── Sub-Subcategory item (reuses tm-sub-item, just smaller img) ── */
+.tm-subsub-item { padding: 7px 12px; }
+
+/* ── Status tag (Active / Inactive) ── */
+.tm-status-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  margin-left: 4px;
+}
+.tm-status-active   { background: #dcfce7; color: #16a34a; }
+.tm-status-inactive { background: #fee2e2; color: #dc2626; }
+
+/* ── Add Sub form top margin (separator from sub list) ── */
+.tm-sub-add-form--top { margin-top: 16px; border-top: 1px dashed var(--border); padding-top: 14px; }
+
+/* ── File input inside add forms ── */
+.tm-file-input { font-size: 12px; flex: 0.8; }
+
+/* ── Empty state message ── */
+.tm-empty-msg { color: #94a3b8; font-size: 13px; margin: 4px 0 8px; }

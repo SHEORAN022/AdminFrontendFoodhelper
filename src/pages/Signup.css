@@ -1,0 +1,170 @@
+/* WRAPPER */
+.signup-wrapper {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  background: #ffffff;
+  font-family: "Inter", sans-serif;
+  overflow: hidden;
+}
+
+/* LEFT IMAGE */
+.signup-left {
+  width: 50%;
+  height: 100%;
+}
+
+.signup-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-right: 4px solid #c00000;
+}
+
+/* RIGHT FORM AREA */
+.signup-right {
+  width: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+  overflow-y: auto; /* 💥 mobile पर scroll allow */
+}
+
+.signup-box {
+  width: 100%;
+  max-width: 420px;
+}
+
+.signup-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: #c00000;
+  margin-bottom: 10px;
+}
+
+.signup-subtitle {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 22px;
+}
+
+/* INPUTS */
+.input-group {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.input-group label {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 6px;
+  color: #c00000;
+}
+
+.input-group input {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1.5px solid #ddd;
+  outline: none;
+  background: #fff;
+  font-size: 14px;
+}
+
+.input-group input:focus {
+  border-color: #c00000;
+  box-shadow: 0 0 4px rgba(192, 0, 0, 0.4);
+}
+
+/* BUTTON */
+.signup-btn {
+  width: 100%;
+  padding: 12px;
+  background: #c00000;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.signup-btn:hover {
+  background: #a40000;
+}
+
+/* LOGIN LINK */
+.login-text {
+  margin-top: 16px;
+  font-size: 14px;
+  color: #444;
+}
+
+.login-text a {
+  color: #c00000;
+  font-weight: 700;
+}
+
+/* -----------------------------------------------
+   📱 MOBILE RESPONSIVE FIXES
+------------------------------------------------ */
+@media (max-width: 900px) {
+  .signup-wrapper {
+    flex-direction: column;
+    height: auto; /* 💥 mobile पर auto height */
+  }
+
+  .signup-left {
+    width: 100%;
+    height: 35vh; /* 💥 कम height ताकि form कटे नहीं */
+  }
+
+  .signup-image {
+    height: 100%;
+  }
+
+  .signup-right {
+    width: 100%;
+    padding: 20px;
+    height: auto;
+    min-height: 65vh;
+    overflow-y: visible; /* 💥 no cut */
+  }
+
+  .signup-box {
+    max-width: 100%;
+  }
+
+  .signup-title {
+    font-size: 26px;
+  }
+}
+
+/* EXTRA SMALL MOBILE FIX (iPhone SE etc.) */
+@media (max-width: 500px) {
+  .signup-left {
+    height: 30vh;
+  }
+  
+  .signup-right {
+    padding: 16px;
+  }
+
+  .signup-title {
+    font-size: 24px;
+  }
+
+  .signup-subtitle {
+    font-size: 14px;
+  }
+
+  .input-group input {
+    padding: 10px;
+  }
+
+  .signup-btn {
+    padding: 10px;
+    font-size: 15px;
+  }
+}
