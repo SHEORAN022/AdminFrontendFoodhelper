@@ -12,6 +12,8 @@ import AdminLayout from "./pages/admin/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
 import InvoicePage from "./pages/admin/InvoicePage";
 import Estimateinvoicepage from "./pages/admin/Estimateinvoicepage";
+import AdvertisingBannerPage from "./pages/admin/AdvertisingBannerPage";
+import MaintenanceSettings from "./pages/admin/MaintenanceSettings";
 import Users from "./pages/admin/Users";
 import Brokers from "./pages/admin/Brokers";
 import Transactions from "./pages/admin/Transactions";
@@ -34,7 +36,9 @@ import Reports from "./pages/admin/Reports";
 import Support from "./pages/admin/Support";
 import BannerManager from "./pages/admin/BannerManager";
 import AdminVendorApproval from "./pages/admin/AdminVendorApproval";
+import CouponPage from "./pages/admin/CouponPage";
 import AdminCategoryApproval from "./pages/admin/AdminCategoryApproval";
+import ServiceAreas from "./pages/admin/ServiceAreas";
 // 🔒 Private Route Wrapper
 function PrivateRoute({ children }) {
   const token = localStorage.getItem("token");
@@ -77,9 +81,14 @@ export default function App() {
           <Route path="stores" element={<Stores />} />
           <Route path="riders" element={<Riders />} />
           <Route path="brokers" element={<Brokers />} />
+          <Route
+  path="maintenance-settings"
+  element={<MaintenanceSettings />}
+/>
           <Route path="transactions" element={<Transactions />} />
           <Route path="payments" element={<AdminPayments />} />
           <Route path="settings" element={<Settings />} />
+          <Route path="/admin/ads" element={<AdvertisingBannerPage />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="banners" element={<BannerManager />} />
           <Route path="CategoryManager" element={<CategoryManager />} />
@@ -91,8 +100,12 @@ export default function App() {
           <Route path="historylist" element={<HistoryList />} />
           <Route path="update-password" element={<AdminUpdatePassword />} />
           <Route path="gst" element={<AdminGST />} />
-          
+          <Route path="coupons" element={<CouponPage />} />
 <Route path="estimate" element={<Estimateinvoicepage />} />
+<Route
+  path="/admin/service-areas"
+  element={<ServiceAreas />}
+/>
 
           <Route path="inventory" element={<AdminInventory />} />
           <Route path="reports" element={<Reports />} />

@@ -14,6 +14,7 @@ import {
   FileText,
   Headphones,
   X,
+    Settings,
   UserCheck 
 } from "react-feather";
 
@@ -46,7 +47,7 @@ export default function AdminLayout() {
 
   const sidebarItems = [
     { to: "/admin", label: "Dashboard", icon: <BarChart2 size={18} /> },
-    { to: "/admin/users", label: "Users", icon: <Users size={18} /> },
+    { to: "/admin/users", label: "Customers", icon: <Users size={18} /> },
       {
     to: "/admin/vendor-approval",
     label: "Vendor Approval",
@@ -61,14 +62,26 @@ export default function AdminLayout() {
     { to: "/admin/riders", label: "Delivery Partners", icon: <Truck size={18} /> },
     { to: "/admin/CategoryManager", label: "Add Category", icon: <Grid size={18} /> },
     { to: "/admin/banners", label: "Banners", icon: <Grid size={18} /> },
+    { to: "/admin/ads", label: "Advertising Ads", icon: <Grid size={18} /> },
+    { to: "/admin/coupons", label: "Coupons", icon: <Grid size={18} /> },
     { to: "/admin/priceanalytics", label: "Analytics", icon: <BarChart2 size={18} /> },
     { to: "/admin/pricelist", label: "Add Product", icon: <Package size={18} /> },
     { to: "/admin/orders", label: "Orders", icon: <Package size={18} /> },
+    {
+  to: "/admin/service-areas",
+  label: "Service Areas",
+  icon: <Home size={18} />,
+},
     { to: "/admin/payments", label: "Payments", icon: <CreditCard size={18} /> },
     // { to: "/admin/gst", label: "GST & Discounts", icon: <CreditCard size={18} /> },
     { to: "/admin/inventory", label: "Inventory", icon: <Package size={18} /> },
     { to: "/admin/reports", label: "Reports", icon: <FileText size={18} /> },
     { to: "/admin/support", label: "Support", icon: <Headphones size={18} /> },
+    {
+  to: "/admin/maintenance-settings",
+  label: "Maintenance",
+  icon: <Settings size={18} />,
+},
   ];
 
   /* ================= STYLES ================= */
