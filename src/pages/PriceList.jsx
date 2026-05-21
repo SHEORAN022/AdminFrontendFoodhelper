@@ -5173,7 +5173,8 @@ export default function PriceList() {
       )}
 
       {/* Products Table */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      {/* <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"> */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
         <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
           <div>
             <h2 className="font-bold text-gray-900">All Products</h2>
@@ -5209,8 +5210,11 @@ export default function PriceList() {
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+            {/* <div className="overflow-x-auto">
+              <table className="w-full text-sm"> */}
+
+              <div className="overflow-x-auto">
+  <table className="min-w-full text-sm">
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-100">
                     <th className="py-3 px-4 text-left w-10">
@@ -5365,8 +5369,10 @@ export default function PriceList() {
               </table>
             </div>
 
-            {totalPages > 1 && (
-              <div className="px-5 py-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            {/* {totalPages > 1 && (
+              <div className="px-5 py-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"> */}
+              {totalPages > 1 && (
+  <div className="px-5 py-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white">
                 <div className="text-xs text-gray-500">
                   Showing {(currentPage - 1) * itemsPerPage + 1}–{Math.min(currentPage * itemsPerPage, filteredItems.length)} of {filteredItems.length}
                 </div>
