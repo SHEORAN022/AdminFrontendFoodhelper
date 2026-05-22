@@ -1,4 +1,3 @@
-
 // import React from "react";
 // import { useLocation, useNavigate } from "react-router-dom";
 
@@ -302,9 +301,32 @@
 
 //             <hr style={divider} />
 
-//             {/* Order & Invoice Details */}
+//             {/* ── Order & Invoice Details — Sr. No. yahan print hoga ── */}
 //             <div style={secLabel}>Order & Invoice Details</div>
 //             <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 12, marginBottom: 14 }}>
+
+//               {/* Sr. No. — pehla column */}
+//               <div>
+//                 <div style={lbl}>Sr. No.</div>
+//                 <div style={{
+//                   ...val,
+//                   display: "inline-flex",
+//                   alignItems: "center",
+//                   justifyContent: "center",
+//                   width: 32, height: 32,
+//                   borderRadius: "50%",
+//                   background: "#0f172a",
+//                   color: "#f8fafc",
+//                   fontSize: 13,
+//                   fontWeight: 700,
+//                   fontFamily: "monospace",
+//                   WebkitPrintColorAdjust: "exact",
+//                   printColorAdjust: "exact",
+//                 }}>
+//                   {order.orderNo ?? "—"}
+//                 </div>
+//               </div>
+
 //               <div>
 //                 <div style={lbl}>Invoice No.</div>
 //                 <div style={{ ...val, fontFamily: "monospace", fontSize: 11 }}>{order.invoiceNo || order._id?.slice(-8).toUpperCase()}</div>
@@ -324,6 +346,10 @@
 //                   {order.status?.charAt(0).toUpperCase() + order.status?.slice(1)}
 //                 </div>
 //               </div>
+//             </div>
+
+//             {/* Total Items row — separate so it wraps nicely */}
+//             <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 12, marginBottom: 14 }}>
 //               <div><div style={lbl}>Total Items</div><div style={val}>{order.items?.length || 0}</div></div>
 //             </div>
 
@@ -435,10 +461,7 @@
 //             <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
 //               <div style={{ minWidth: 290 }}>
 
-//                 {/* Items subtotal */}
 //                 <TotalRow label="Items Subtotal" value={fC(grandTotal, 2)} />
-
-//                 {/* GST breakdown */}
 //                 <TotalRow label="CGST" value={fC(totalGST / 2, 2)} />
 //                 <TotalRow label="SGST" value={fC(totalGST / 2, 2)} />
 
@@ -451,21 +474,18 @@
 //                   value={fC(totalGST + totalCess, 2)}
 //                 />
 
-//                 {/* Delivery Charge */}
 //                 {deliveryCharge > 0 ? (
 //                   <TotalRow label="Delivery Charge" value={fC(deliveryCharge, 2)} />
 //                 ) : (
 //                   <TotalRow label="Delivery Charge" value="Free" green mono={false} />
 //                 )}
 
-//                 {/* Handling Charge */}
 //                 {handlingCharge > 0 ? (
 //                   <TotalRow label="Handling Charge" value={fC(handlingCharge, 2)} />
 //                 ) : (
 //                   <TotalRow label="Handling Charge" value="Free" green mono={false} />
 //                 )}
 
-//                 {/* Coupon */}
 //                 {couponDiscount > 0 && (
 //                   <TotalRow
 //                     label="Coupon Discount"
@@ -475,7 +495,6 @@
 //                   />
 //                 )}
 
-//                 {/* Grand Total */}
 //                 <TotalRow label="Grand Total" value={fC(effectiveTotal, 2)} highlight />
 
 //                 <div style={{ fontSize: 9.5, color: "#94a3b8", marginTop: 6, textAlign: "right", fontStyle: "italic" }}>
@@ -522,9 +541,45 @@
 // }
 
 
+
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+/* ─────────────────────────────────────────
+   Invoice Number Generator
+   Format : INV/YYYY-YY/NNN
+   e.g.   : INV/2026-27/001
+   ───────────────────────────────────────── */
+const getFinancialYear = (dateStr) => {
+  const d = new Date(dateStr || Date.now());
+  const month = d.getMonth(); // 0-indexed; April = 3
+  const year  = d.getFullYear();
+  const startYear = month >= 3 ? year : year - 1;   // FY starts April
+  const endYear   = (startYear + 1).toString().slice(-2);
+  return `${startYear}-${endYear}`;
+};
+
+/**
+ * Generates invoice number from order.
+ * Priority:
+ *  1. order.invoiceNo if already in INV/... format → use as-is
+ *  2. order.orderNo   → zero-pad to 3 digits
+ *  3. Fallback sequential from _id
+ */
+const buildInvoiceNo = (order) => {
+  if (order.invoiceNo && /^INV\/\d{4}-\d{2}\/\d+$/.test(order.invoiceNo)) {
+    return order.invoiceNo; // already formatted
+  }
+  const fy  = getFinancialYear(order.createdAt);
+  const seq = order.orderNo
+    ? String(order.orderNo).padStart(3, "0")
+    : (order._id ? order._id.slice(-4).toUpperCase() : "001");
+  return `INV/${fy}/${seq}`;
+};
+
+/* ─────────────────────────────────────────
+   Formatters
+   ───────────────────────────────────────── */
 const fD = (d) =>
   new Date(d).toLocaleDateString("en-IN", {
     day: "2-digit", month: "short", year: "numeric",
@@ -538,6 +593,9 @@ const fN = (n, d = 2) =>
 
 const fC = (n, d = 2) => "₹" + fN(n, d);
 
+/* ─────────────────────────────────────────
+   Packing sort helpers
+   ───────────────────────────────────────── */
 const getPackingKey = (packing) => {
   const str = (packing || "").toString().trim();
   if (str === "—" || str === "") return "\uffff";
@@ -551,11 +609,50 @@ const packingSort = (a, b) => {
   return kA.localeCompare(kB, "en", { sensitivity: "base" });
 };
 
-export default function InvoicePage() {
-  const navigate = useNavigate();
-  const { state } = useLocation();
-  const order = state?.order;
+/* ─────────────────────────────────────────
+   Full Address builder
+   Handles nested or flat address objects
+   ───────────────────────────────────────── */
+const buildFullAddress = (order) => {
+  const addr = order.customer?.address || order.address || order.shippingAddress || {};
 
+  const parts = [
+    addr.houseNo    || addr.house     || addr.flatNo   || addr.flat,
+    addr.building   || addr.apartment || addr.society,
+    addr.street     || addr.line1     || addr.addressLine1,
+    addr.landmark   || addr.line2     || addr.addressLine2,
+    addr.locality   || addr.area      || addr.colony,
+    addr.city       || addr.district,
+    addr.state,
+    addr.pincode    || addr.zip       || addr.postalCode,
+  ].filter(Boolean);
+
+  return parts.length ? parts.join(", ") : (order.customer?.fullAddress || "—");
+};
+
+/* ═══════════════════════════════════════════
+   InvoicePage Component
+   ═══════════════════════════════════════════ */
+export default function InvoicePage() {
+  const navigate  = useNavigate();
+  const { state } = useLocation();
+
+  /* Support both single order and array of orders.
+     When array is passed, sort descending (latest first). */
+  const rawOrder  = state?.order;
+  const rawOrders = state?.orders;
+
+  // If multiple orders supplied, sort descending by createdAt
+  const orderList = rawOrders
+    ? [...rawOrders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    : rawOrder
+    ? [rawOrder]
+    : [];
+
+  // Active order = first in sorted list (or from direct state)
+  const order = orderList[0] ?? null;
+
+  /* ── No order guard ── */
   if (!order) {
     return (
       <div style={{
@@ -577,6 +674,10 @@ export default function InvoicePage() {
     );
   }
 
+  /* ── Derived invoice number ── */
+  const invoiceNo = buildInvoiceNo(order);
+
+  /* ── Item calculations ── */
   const calcItems = (order.items || []).map((it) => {
     const lineTotal = Number(it.price    || 0);
     const unitPrice = Number(it.unitPrice || it.rate || 0);
@@ -625,17 +726,16 @@ export default function InvoicePage() {
   });
 
   const grandTotal   = calcItems.reduce((s, i) => s + i.total,    0);
-  const totalTaxable = calcItems.reduce((s, i) => s + i.taxable,  0);
   const totalGST     = calcItems.reduce((s, i) => s + i.totalGst, 0);
   const totalCess    = calcItems.reduce((s, i) => s + i.cess,     0);
 
   /* ── Charges ── */
-  const deliveryCharge  = Number(order.deliveryCharge  || 0);
-  const handlingCharge  = Number(order.handlingCharge  || 0);
-  const couponDiscount  = Number(order.couponDiscount  || 0);
-  const effectiveTotal  = order.finalPrice ?? (grandTotal + deliveryCharge + handlingCharge - couponDiscount);
+  const deliveryCharge = Number(order.deliveryCharge || 0);
+  const handlingCharge = Number(order.handlingCharge || 0);
+  const couponDiscount = Number(order.couponDiscount || 0);
+  const effectiveTotal = order.finalPrice ?? (grandTotal + deliveryCharge + handlingCharge - couponDiscount);
 
-  /* ── Status Color ── */
+  /* ── Status color ── */
   const statusMap = {
     pending:   { bg: "#fff7ed", color: "#c2410c", dot: "#fb923c" },
     confirmed: { bg: "#f0fdf4", color: "#15803d", dot: "#4ade80" },
@@ -645,11 +745,10 @@ export default function InvoicePage() {
   };
   const sc = statusMap[order.status?.toLowerCase()] || statusMap.pending;
 
-  const addr = order.customer?.address || order.address || {};
-  const addrFull = [addr.street, addr.city, addr.state, addr.pincode]
-    .filter(Boolean).join(", ");
+  /* ── Full address ── */
+  const addrFull = buildFullAddress(order);
 
-  /* ── Shared Styles ── */
+  /* ── Shared styles ── */
   const lbl      = { fontSize: 10, color: "#94a3b8", marginBottom: 2 };
   const val      = { fontSize: 12, fontWeight: 500, color: "#0f172a", lineHeight: 1.5 };
   const divider  = { border: "none", borderTop: "0.5px solid #e2e8f0", margin: "14px 0" };
@@ -657,33 +756,24 @@ export default function InvoicePage() {
     fontSize: 9, fontWeight: 600, letterSpacing: "1.5px",
     textTransform: "uppercase", color: "#64748b", marginBottom: 8,
   };
-
   const th = {
     padding: "6px 5px",
-    fontSize: 9,
-    fontWeight: 600,
-    letterSpacing: "0.8px",
-    textTransform: "uppercase",
-    color: "#64748b",
+    fontSize: 9, fontWeight: 600, letterSpacing: "0.8px",
+    textTransform: "uppercase", color: "#64748b",
     borderBottom: "0.5px solid #e2e8f0",
     background: "#f8fafc",
-    WebkitPrintColorAdjust: "exact",
-    printColorAdjust: "exact",
+    WebkitPrintColorAdjust: "exact", printColorAdjust: "exact",
     whiteSpace: "nowrap",
   };
   const td  = {
-    padding: "7px 5px",
-    fontSize: 11,
-    color: "#0f172a",
+    padding: "7px 5px", fontSize: 11, color: "#0f172a",
     borderBottom: "0.5px solid #f1f5f9",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
+    overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
   };
   const tdR = { ...td, textAlign: "right", fontFamily: "monospace", fontSize: 10.5 };
   const thR = { ...th, textAlign: "right" };
 
-  /* ── Total Row helper ── */
+  /* ── TotalRow helper ── */
   const TotalRow = ({ label, value, highlight, green, red, mono = true, note }) => (
     <div style={{
       display: "flex", justifyContent: "space-between", alignItems: "center",
@@ -740,7 +830,7 @@ export default function InvoicePage() {
       `}</style>
 
       {/* Back Button */}
-      <div className="no-print" style={{ display: "flex", justifyContent: "center", marginBottom: 14 }}>
+      <div className="no-print" style={{ display: "flex", justifyContent: "center", marginBottom: 14, paddingTop: 16 }}>
         <div style={{ width: "100%", maxWidth: 900, display: "flex", justifyContent: "flex-start" }}>
           <button
             onClick={() => navigate(-1)}
@@ -762,7 +852,7 @@ export default function InvoicePage() {
         className="invoice-wrapper"
         style={{
           fontFamily: "'Inter', 'Segoe UI', sans-serif",
-          padding: "24px 12px", minHeight: "100vh",
+          padding: "0 12px 24px", minHeight: "100vh",
           display: "flex", justifyContent: "center", alignItems: "flex-start",
           background: "#f1f5f9",
         }}
@@ -785,8 +875,9 @@ export default function InvoicePage() {
           }}>
             <div>
               <div style={{ fontSize: 22, fontWeight: 500, color: "#f8fafc", letterSpacing: 2 }}>INVOICE</div>
+              {/* ✅ Updated invoice number in INV/YYYY-YY/NNN format */}
               <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 3, fontFamily: "monospace" }}>
-                {order.invoiceNo} · {fD(order.createdAt)}
+                {invoiceNo} · {fD(order.createdAt)}
               </div>
             </div>
             <div style={{ textAlign: "right" }}>
@@ -819,17 +910,23 @@ export default function InvoicePage() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 10 }}>
               <div><div style={lbl}>Name</div><div style={val}>{order.customer?.name || order.userName || "—"}</div></div>
               <div><div style={lbl}>GSTIN</div><div style={{ ...val, fontFamily: "monospace", fontSize: 11 }}>{order.customer?.gstin || "—"}</div></div>
-              <div><div style={lbl}>Phone</div><div style={val}>{order.customer?.phone || addr.phone || "—"}</div></div>
-              <div><div style={lbl}>Shipping Address</div><div style={val}>{addrFull || "—"}</div></div>
+              <div><div style={lbl}>Phone</div><div style={val}>{order.customer?.phone || order.address?.phone || order.shippingAddress?.phone || "—"}</div></div>
+              {/* ✅ Full address — all fields joined */}
+              <div>
+                <div style={lbl}>Shipping Address</div>
+                <div style={{ ...val, whiteSpace: "normal", lineHeight: 1.6, fontSize: 11 }}>
+                  {addrFull}
+                </div>
+              </div>
             </div>
 
             <hr style={divider} />
 
-            {/* ── Order & Invoice Details — Sr. No. yahan print hoga ── */}
+            {/* ── Order & Invoice Details ── */}
             <div style={secLabel}>Order & Invoice Details</div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 12, marginBottom: 14 }}>
 
-              {/* Sr. No. — pehla column */}
+              {/* Sr. No. */}
               <div>
                 <div style={lbl}>Sr. No.</div>
                 <div style={{
@@ -853,7 +950,8 @@ export default function InvoicePage() {
 
               <div>
                 <div style={lbl}>Invoice No.</div>
-                <div style={{ ...val, fontFamily: "monospace", fontSize: 11 }}>{order.invoiceNo || order._id?.slice(-8).toUpperCase()}</div>
+                {/* ✅ Formatted invoice number shown here too */}
+                <div style={{ ...val, fontFamily: "monospace", fontSize: 11 }}>{invoiceNo}</div>
               </div>
               <div><div style={lbl}>Invoice Date</div><div style={val}>{fD(order.createdAt)}</div></div>
               <div><div style={lbl}>Due Date</div><div style={val}>{order.dueDate ? fD(order.dueDate) : "—"}</div></div>
@@ -872,7 +970,6 @@ export default function InvoicePage() {
               </div>
             </div>
 
-            {/* Total Items row — separate so it wraps nicely */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 12, marginBottom: 14 }}>
               <div><div style={lbl}>Total Items</div><div style={val}>{order.items?.length || 0}</div></div>
             </div>
@@ -984,7 +1081,6 @@ export default function InvoicePage() {
             {/* ── Totals ── */}
             <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
               <div style={{ minWidth: 290 }}>
-
                 <TotalRow label="Items Subtotal" value={fC(grandTotal, 2)} />
                 <TotalRow label="CGST" value={fC(totalGST / 2, 2)} />
                 <TotalRow label="SGST" value={fC(totalGST / 2, 2)} />
@@ -1024,7 +1120,6 @@ export default function InvoicePage() {
                 <div style={{ fontSize: 9.5, color: "#94a3b8", marginTop: 6, textAlign: "right", fontStyle: "italic" }}>
                   * Item prices are GST-inclusive · Delivery &amp; Handling added separately
                 </div>
-
               </div>
             </div>
 
