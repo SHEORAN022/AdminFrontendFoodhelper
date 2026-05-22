@@ -1,3 +1,4 @@
+
 // import React, { useEffect, useState, useMemo, useRef, useCallback } from "react";
 // import axios from "axios";
 // import { useNavigate } from "react-router-dom";
@@ -102,7 +103,8 @@
 //   return products;
 // };
 
-// const buildInvoiceOrder = (o, useOriginal = false) => {
+// // ─── buildInvoiceOrder — orderNo bhi pass hoga ────────────────────────────────
+// const buildInvoiceOrder = (o, useOriginal = false, srNo = null) => {
 //   const itemsSource = useOriginal
 //     ? (o.originalItems && o.originalItems.length > 0 ? o.originalItems : o.items)
 //     : o.items;
@@ -139,6 +141,7 @@
 
 //   return {
 //     _id:            o._id,
+//     orderNo:        srNo,                  // ← Sr. No. invoice mein jaayega
 //     createdAt:      o.createdAt,
 //     status:         o.status,
 //     invoiceNo:      `INV-${o._id.slice(-6).toUpperCase()}`,
@@ -181,7 +184,7 @@
 
 // const buildTallyCSV = (orders) => {
 //   const headers = [
-//     "Vch Ref", "Invoice No", "Voucher Date", "Invoice Date", "Voucher TYPE",
+//     "Sr. No.", "Vch Ref", "Invoice No", "Voucher Date", "Invoice Date", "Voucher TYPE",
 //     "Customer Code / Alias", "Customer Name", "Customer Mobile No", "Under Group",
 //     "Address Name", "Street", "City", "State", "Pincode", "Full Address", "GST No",
 //     "Product NO", "Product Description", "Stock Category", "HSN", "STORE", "UOM",
@@ -192,7 +195,8 @@
 //   const rows = [];
 //   let vchRef = 1;
 
-//   orders.forEach((o) => {
+//   orders.forEach((o, idx) => {
+//     const srNo      = orders.length - idx;   // descending
 //     const invoiceNo = `INV-${o._id.slice(-6).toUpperCase()}`;
 //     const fmtDate = (() => {
 //       if (!o.createdAt) return "";
@@ -218,7 +222,7 @@
 //     if (items.length === 0) {
 //       const total = getEffectiveTotal(o);
 //       rows.push([
-//         vchRef, invoiceNo, fmtDate, fmtDate, "GST Sales",
+//         srNo, vchRef, invoiceNo, fmtDate, fmtDate, "GST Sales",
 //         customerCode, customerName, customerMobile, "Sundry Debtors",
 //         addrName, street, city, state, pincode, fullAddr, gstin,
 //         "", "", "", "", store, "", "", "", total,
@@ -247,7 +251,7 @@
 //         const roundOff   = +(lineRounded - lineRaw).toFixed(2);
 
 //         rows.push([
-//           vchRef, invoiceNo, fmtDate, fmtDate, "GST Sales",
+//           isFirstItem ? srNo : "", vchRef, invoiceNo, fmtDate, fmtDate, "GST Sales",
 //           customerCode, customerName, customerMobile, "Sundry Debtors",
 //           addrName, street, city, state, pincode, fullAddr, gstin,
 //           productNo, name, stockCat, hsn, store, unit, quantity, unitPrice, amount,
@@ -1350,20 +1354,15 @@
 //   const [newOrderAlerts, setNewOrderAlerts]     = useState([]);
 //   const [sseStatus, setSseStatus]               = useState("connecting");
 
-//   // ── TOP SCROLLBAR MIRROR REFS ──────────────────────────────────────────────
 //   const tableScrollRef = useRef(null);
 //   const topScrollRef   = useRef(null);
-//   // Sync: top bar → table
 //   const handleTopScroll = useCallback(() => {
-//     if (tableScrollRef.current && topScrollRef.current) {
+//     if (tableScrollRef.current && topScrollRef.current)
 //       tableScrollRef.current.scrollLeft = topScrollRef.current.scrollLeft;
-//     }
 //   }, []);
-//   // Sync: table → top bar
 //   const handleTableScroll = useCallback(() => {
-//     if (topScrollRef.current && tableScrollRef.current) {
+//     if (topScrollRef.current && tableScrollRef.current)
 //       topScrollRef.current.scrollLeft = tableScrollRef.current.scrollLeft;
-//     }
 //   }, []);
 
 //   const knownOrderIds = useRef(null);
@@ -1377,8 +1376,8 @@
 
 //   useEffect(() => { tokenRef.current = token; }, [token]);
 
-//   const dismissAlert     = useCallback((orderId) => { setNewOrderAlerts((prev) => prev.filter((o) => o._id !== orderId)); }, []);
-//   const dismissAllAlerts = useCallback(() => { setNewOrderAlerts([]); }, []);
+//   const dismissAlert     = useCallback((orderId) => setNewOrderAlerts((prev) => prev.filter((o) => o._id !== orderId)), []);
+//   const dismissAllAlerts = useCallback(() => setNewOrderAlerts([]), []);
 
 //   const handleNewOrders = useCallback((brandNew) => {
 //     if (!brandNew.length) return;
@@ -1414,7 +1413,6 @@
 
 //   const startFallbackPolling = useCallback(() => {
 //     if (fallbackRef.current) return;
-//     console.warn("[SSE] Falling back to polling");
 //     setSseStatus("disconnected");
 //     fallbackRef.current = setInterval(async () => {
 //       try {
@@ -1441,12 +1439,10 @@
 //     const url = `${ORDER_API}/sse?token=${encodeURIComponent(tokenRef.current || "")}`;
 //     const es = new EventSource(url);
 //     sseRef.current = es;
-
 //     es.onopen = () => {
 //       setSseStatus("connected");
 //       if (fallbackRef.current) { clearInterval(fallbackRef.current); fallbackRef.current = null; }
 //     };
-
 //     es.onmessage = (e) => {
 //       try {
 //         const payload = JSON.parse(e.data);
@@ -1463,7 +1459,6 @@
 //         console.error("[SSE] Parse error:", err);
 //       }
 //     };
-
 //     es.onerror = (err) => {
 //       console.error("[SSE] Error / disconnected", err);
 //       es.close();
@@ -1559,6 +1554,10 @@
 //   const editModalOrder    = editModalId    ? orders.find((o) => o._id === editModalId)    || null : null;
 //   const paymentModalOrder = paymentModalId ? orders.find((o) => o._id === paymentModalId) || null : null;
 
+//   // ── Descending Sr. No. helper ─────────────────────────────────────────────
+//   // filtered list mein index ke hisaab se descending number
+//   const getSrNo = (idxInFiltered) => filtered.length - idxInFiltered;
+
 //   return (
 //     <div className="p-4 md:p-6 bg-[#F8FAFC] min-h-screen">
 
@@ -1649,28 +1648,23 @@
 //           </div>
 //         ) : (
 //           <>
-//             {/* ── TOP MIRROR SCROLLBAR ── renders just above the table headers */}
+//             {/* Top mirror scrollbar */}
 //             <div
 //               ref={topScrollRef}
 //               onScroll={handleTopScroll}
 //               style={{ overflowX: "auto", overflowY: "hidden", height: "10px" }}
 //               className="border-b border-gray-100"
 //             >
-//               {/* phantom div same width as the table so the scrollbar appears */}
-//               <div style={{ width: "1900px", height: "1px" }} />
+//               <div style={{ width: "2000px", height: "1px" }} />
 //             </div>
 
-//             {/* ── ACTUAL TABLE ── */}
-//             <div
-//               ref={tableScrollRef}
-//               onScroll={handleTableScroll}
-//               className="overflow-x-auto"
-//             >
+//             {/* Table */}
+//             <div ref={tableScrollRef} onScroll={handleTableScroll} className="overflow-x-auto">
 //               <table className="w-full text-sm">
 //                 <thead>
 //                   <tr className="bg-gray-50 border-b border-gray-100">
 //                     {[
-//                       "Order", "Customer", "Items", "Vendors",
+//                       "Sr. No.", "Order", "Customer", "Items", "Vendors",
 //                       "Price / Coupon", "Payment", "Address", "Status",
 //                       "Update Status", "Rider", "Edit", "Payment", "Estimate", "Invoice",
 //                     ].map((h) => (
@@ -1679,7 +1673,8 @@
 //                   </tr>
 //                 </thead>
 //                 <tbody className="divide-y divide-gray-50">
-//                   {filtered.map((o) => {
+//                   {filtered.map((o, idx) => {
+//                     const srNo           = getSrNo(idx);         // descending
 //                     const itemCount      = o.items?.length || 0;
 //                     const firstItem      = o.items?.[0];
 //                     const firstProduct   = firstItem?.product && typeof firstItem.product === "object" && firstItem.product.name ? firstItem.product : {};
@@ -1688,6 +1683,13 @@
 
 //                     return (
 //                       <tr key={o._id} className="hover:bg-gray-50/70 transition-colors">
+
+//                         {/* ── Sr. No. ── */}
+//                         <td className="py-3.5 px-4">
+//                           <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-slate-800 text-white text-xs font-black">
+//                             {srNo}
+//                           </span>
+//                         </td>
 
 //                         {/* Order ID */}
 //                         <td className="py-3.5 px-4">
@@ -1858,7 +1860,7 @@
 //                         {/* Estimate */}
 //                         <td className="py-3.5 px-4">
 //                           <button
-//                             onClick={() => navigate("/admin/estimate", { state: { order: buildInvoiceOrder(o, true) } })}
+//                             onClick={() => navigate("/admin/estimate", { state: { order: buildInvoiceOrder(o, true, srNo) } })}
 //                             className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-700 text-[11px] font-bold rounded-xl transition-all active:scale-95 whitespace-nowrap">
 //                             <ClipboardList size={12} /> Estimate
 //                           </button>
@@ -1867,11 +1869,12 @@
 //                         {/* Invoice */}
 //                         <td className="py-3.5 px-4">
 //                           <button
-//                             onClick={() => navigate("/invoice", { state: { order: buildInvoiceOrder(o, false) } })}
+//                             onClick={() => navigate("/invoice", { state: { order: buildInvoiceOrder(o, false, srNo) } })}
 //                             className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold rounded-xl transition-all active:scale-95 whitespace-nowrap">
 //                             <FileText size={12} /> Invoice
 //                           </button>
 //                         </td>
+
 //                       </tr>
 //                     );
 //                   })}
@@ -1913,6 +1916,7 @@
 // }
 
 
+
 import React, { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -1921,7 +1925,7 @@ import {
   ChevronDown, Search, RefreshCw, ShoppingBag,
   Bike, UserCheck, X, FileText, Pencil, Plus, Minus, ClipboardList,
   Download, CheckCircle, Hourglass, TrendingUp, Wallet, Tag, Bell,
-  Store, Eye, Users,
+  Store, Eye, Users, Calendar,
 } from "lucide-react";
 
 const ORDER_API   = "https://grocerrybackend.onrender.com/api/orders";
@@ -2017,7 +2021,17 @@ const flattenProducts = (categories = []) => {
   return products;
 };
 
-// ─── buildInvoiceOrder — orderNo bhi pass hoga ────────────────────────────────
+// ─── Financial Year helper ────────────────────────────────────────────────────
+const getFinancialYear = (dateStr) => {
+  const d = new Date(dateStr || Date.now());
+  const month = d.getMonth(); // 0-indexed; April = 3
+  const year  = d.getFullYear();
+  const startYear = month >= 3 ? year : year - 1;
+  const endYear   = (startYear + 1).toString().slice(-2);
+  return `${startYear}-${endYear}`;
+};
+
+// ─── buildInvoiceOrder — INV/YYYY-YY/NNN format ───────────────────────────────
 const buildInvoiceOrder = (o, useOriginal = false, srNo = null) => {
   const itemsSource = useOriginal
     ? (o.originalItems && o.originalItems.length > 0 ? o.originalItems : o.items)
@@ -2053,12 +2067,34 @@ const buildInvoiceOrder = (o, useOriginal = false, srNo = null) => {
         : +items.reduce((s, i) => s + i.unitPrice * i.quantity, 0).toFixed(2))
     : getEffectiveTotal(o);
 
+  // ── Build proper invoice number: INV/YYYY-YY/NNN ──
+  const fy  = getFinancialYear(o.createdAt);
+  const seq = srNo != null
+    ? String(srNo).padStart(3, "0")
+    : o._id.slice(-4).toUpperCase();
+  const invoiceNo = `INV/${fy}/${seq}`;
+
+  // ── Full customer address ──
+  const addr = o.address || o.shippingAddress || {};
+  const customerAddress = {
+    houseNo:   addr.houseNo   || addr.house     || addr.flatNo   || addr.flat     || "",
+    building:  addr.building  || addr.apartment || addr.society  || "",
+    street:    addr.street    || addr.line1     || addr.addressLine1 || "",
+    landmark:  addr.landmark  || addr.line2     || addr.addressLine2 || "",
+    locality:  addr.locality  || addr.area      || addr.colony   || "",
+    city:      addr.city      || addr.district  || "",
+    state:     addr.state     || "",
+    pincode:   addr.pincode   || addr.zip       || addr.postalCode || "",
+    phone:     addr.phone     || o.user?.phone  || "",
+    name:      addr.name      || o.user?.name   || o.userName    || "",
+  };
+
   return {
     _id:            o._id,
-    orderNo:        srNo,                  // ← Sr. No. invoice mein jaayega
+    orderNo:        srNo,
     createdAt:      o.createdAt,
     status:         o.status,
-    invoiceNo:      `INV-${o._id.slice(-6).toUpperCase()}`,
+    invoiceNo,
     paymentMode:    o.paymentMode || "Cash",
     couponCode:     o.couponCode     || null,
     couponDiscount: o.couponDiscount || 0,
@@ -2073,14 +2109,10 @@ const buildInvoiceOrder = (o, useOriginal = false, srNo = null) => {
       email:   o.vendor?.email   || "",
     },
     customer: {
-      name:  o.user?.name || o.userName || "—",
-      phone: o.address?.phone || "",
-      address: {
-        street:  o.address?.street  || "",
-        city:    o.address?.city    || "",
-        state:   o.address?.state   || "",
-        pincode: o.address?.pincode || "",
-      },
+      name:    customerAddress.name,
+      phone:   customerAddress.phone,
+      gstin:   o.customer?.gstin || "",
+      address: customerAddress,
     },
     items,
     totalPrice: grandTotal,
@@ -2110,8 +2142,11 @@ const buildTallyCSV = (orders) => {
   let vchRef = 1;
 
   orders.forEach((o, idx) => {
-    const srNo      = orders.length - idx;   // descending
-    const invoiceNo = `INV-${o._id.slice(-6).toUpperCase()}`;
+    const srNo      = orders.length - idx;
+    const fy        = getFinancialYear(o.createdAt);
+    const seq       = String(srNo).padStart(3, "0");
+    const invoiceNo = `INV/${fy}/${seq}`;
+
     const fmtDate = (() => {
       if (!o.createdAt) return "";
       const d = new Date(o.createdAt);
@@ -2473,6 +2508,113 @@ const StatusBadge = ({ status }) => {
       <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
       {cfg.label}
     </span>
+  );
+};
+
+// ─── DATE RANGE FILTER ────────────────────────────────────────────────────────
+const DateRangeFilter = ({ dateFrom, dateTo, onFromChange, onToChange, onClear, filteredCount, totalCount }) => {
+  const isActive = dateFrom || dateTo;
+
+  // Quick presets
+  const setPreset = (days) => {
+    const to   = new Date();
+    const from = new Date();
+    from.setDate(from.getDate() - days);
+    onFromChange(from.toISOString().slice(0, 10));
+    onToChange(to.toISOString().slice(0, 10));
+  };
+
+  const setToday = () => {
+    const today = new Date().toISOString().slice(0, 10);
+    onFromChange(today);
+    onToChange(today);
+  };
+
+  return (
+    <div className={`bg-white rounded-2xl border shadow-sm p-4 mb-4 transition-all ${isActive ? "border-blue-200 bg-blue-50/30" : "border-gray-100"}`}>
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        {/* Label */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${isActive ? "bg-blue-600" : "bg-gray-100"}`}>
+            <Calendar className={`w-4 h-4 ${isActive ? "text-white" : "text-gray-500"}`} />
+          </div>
+          <span className="text-xs font-black text-slate-700 uppercase tracking-widest">Date Filter</span>
+          {isActive && (
+            <span className="text-[9px] font-bold text-blue-700 bg-blue-100 border border-blue-200 px-2 py-0.5 rounded-full">
+              {filteredCount} / {totalCount} orders
+            </span>
+          )}
+        </div>
+
+        {/* Date inputs */}
+        <div className="flex items-center gap-2 flex-1 flex-wrap">
+          <div className="flex items-center gap-1.5 flex-1 min-w-[130px]">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide flex-shrink-0">From</span>
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => onFromChange(e.target.value)}
+              max={dateTo || undefined}
+              className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-xl text-xs font-medium text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-all"
+            />
+          </div>
+          <span className="text-slate-300 font-bold text-sm flex-shrink-0">→</span>
+          <div className="flex items-center gap-1.5 flex-1 min-w-[130px]">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide flex-shrink-0">To</span>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => onToChange(e.target.value)}
+              min={dateFrom || undefined}
+              className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-xl text-xs font-medium text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-all"
+            />
+          </div>
+        </div>
+
+        {/* Quick presets */}
+        <div className="flex items-center gap-1.5 flex-shrink-0 flex-wrap">
+          <button
+            onClick={setToday}
+            className="px-2.5 py-1 rounded-full text-[10px] font-bold border border-gray-200 bg-white text-slate-600 hover:border-blue-300 hover:text-blue-700 hover:bg-blue-50 transition-all"
+          >
+            Aaj
+          </button>
+          <button
+            onClick={() => setPreset(7)}
+            className="px-2.5 py-1 rounded-full text-[10px] font-bold border border-gray-200 bg-white text-slate-600 hover:border-blue-300 hover:text-blue-700 hover:bg-blue-50 transition-all"
+          >
+            7 Din
+          </button>
+          <button
+            onClick={() => setPreset(30)}
+            className="px-2.5 py-1 rounded-full text-[10px] font-bold border border-gray-200 bg-white text-slate-600 hover:border-blue-300 hover:text-blue-700 hover:bg-blue-50 transition-all"
+          >
+            30 Din
+          </button>
+          <button
+            onClick={() => {
+              // This month
+              const now   = new Date();
+              const from  = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+              const to    = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10);
+              onFromChange(from);
+              onToChange(to);
+            }}
+            className="px-2.5 py-1 rounded-full text-[10px] font-bold border border-gray-200 bg-white text-slate-600 hover:border-blue-300 hover:text-blue-700 hover:bg-blue-50 transition-all"
+          >
+            Ye Mahina
+          </button>
+          {isActive && (
+            <button
+              onClick={onClear}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition-all"
+            >
+              <X size={9} /> Clear
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
 
@@ -3259,6 +3401,8 @@ export default function AdminOrders() {
   const [loading, setLoading]                   = useState(true);
   const [filter, setFilter]                     = useState("all");
   const [search, setSearch]                     = useState("");
+  const [dateFrom, setDateFrom]                 = useState("");
+  const [dateTo, setDateTo]                     = useState("");
   const [updating, setUpdating]                 = useState(null);
   const [assignModal, setAssignModal]           = useState(null);
   const [editModalId, setEditModalId]           = useState(null);
@@ -3444,21 +3588,42 @@ export default function AdminOrders() {
     );
   };
 
-  const filtered = orders.filter((o) => {
-    const matchFilter = filter === "all" || o.status === filter;
-    const q = search.toLowerCase();
-    const matchSearch =
-      !q ||
-      (o.user?.name || o.userName || "").toLowerCase().includes(q) ||
-      o._id.toLowerCase().includes(q) ||
-      (o.address?.city || "").toLowerCase().includes(q) ||
-      (o.couponCode || "").toLowerCase().includes(q) ||
-      (o.items || []).some((it) => {
-        const name = it.product && typeof it.product === "object" && it.product.name ? it.product.name : it.name || "";
-        return name.toLowerCase().includes(q);
-      });
-    return matchFilter && matchSearch;
-  });
+  // ── Filtering (status + search + date range) ──────────────────────────────
+  const filtered = useMemo(() => {
+    return orders.filter((o) => {
+      // Status filter
+      const matchFilter = filter === "all" || o.status === filter;
+
+      // Search filter
+      const q = search.toLowerCase();
+      const matchSearch =
+        !q ||
+        (o.user?.name || o.userName || "").toLowerCase().includes(q) ||
+        o._id.toLowerCase().includes(q) ||
+        (o.address?.city || "").toLowerCase().includes(q) ||
+        (o.couponCode || "").toLowerCase().includes(q) ||
+        (o.items || []).some((it) => {
+          const name = it.product && typeof it.product === "object" && it.product.name ? it.product.name : it.name || "";
+          return name.toLowerCase().includes(q);
+        });
+
+      // Date range filter
+      let matchDate = true;
+      if (dateFrom || dateTo) {
+        const orderDate = o.createdAt ? new Date(o.createdAt) : null;
+        if (!orderDate || isNaN(orderDate.getTime())) {
+          matchDate = false;
+        } else {
+          // Compare only date part (ignore time)
+          const orderDateStr = orderDate.toISOString().slice(0, 10);
+          if (dateFrom && orderDateStr < dateFrom) matchDate = false;
+          if (dateTo   && orderDateStr > dateTo)   matchDate = false;
+        }
+      }
+
+      return matchFilter && matchSearch && matchDate;
+    });
+  }, [orders, filter, search, dateFrom, dateTo]);
 
   const counts = Object.keys(STATUS_CONFIG).reduce((acc, s) => {
     acc[s] = orders.filter((o) => o.status === s).length;
@@ -3468,8 +3633,7 @@ export default function AdminOrders() {
   const editModalOrder    = editModalId    ? orders.find((o) => o._id === editModalId)    || null : null;
   const paymentModalOrder = paymentModalId ? orders.find((o) => o._id === paymentModalId) || null : null;
 
-  // ── Descending Sr. No. helper ─────────────────────────────────────────────
-  // filtered list mein index ke hisaab se descending number
+  // ── Descending Sr. No. (based on filtered list length) ────────────────────
   const getSrNo = (idxInFiltered) => filtered.length - idxInFiltered;
 
   return (
@@ -3510,7 +3674,7 @@ export default function AdminOrders() {
         ))}
       </div>
 
-      {/* Search + Filter */}
+      {/* Search + Status Filter */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-4">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1 relative">
@@ -3535,12 +3699,30 @@ export default function AdminOrders() {
         </div>
       </div>
 
+      {/* ── Date Range Filter ── */}
+      <DateRangeFilter
+        dateFrom={dateFrom}
+        dateTo={dateTo}
+        onFromChange={setDateFrom}
+        onToChange={setDateTo}
+        onClear={() => { setDateFrom(""); setDateTo(""); }}
+        filteredCount={filtered.length}
+        totalCount={orders.length}
+      />
+
       {/* Orders Table */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between flex-wrap gap-2">
           <div>
             <h3 className="font-bold text-slate-800">All Orders</h3>
-            <p className="text-xs text-slate-400 mt-0.5">Showing {filtered.length} of {orders.length} orders</p>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Showing {filtered.length} of {orders.length} orders
+              {(dateFrom || dateTo) && (
+                <span className="ml-2 text-blue-500 font-semibold">
+                  · {dateFrom || "…"} → {dateTo || "…"}
+                </span>
+              )}
+            </p>
           </div>
           {filter !== "all" && filtered.length > 0 && (
             <div className="flex items-center gap-2 text-[11px] text-emerald-600 font-semibold bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-full">
@@ -3558,7 +3740,17 @@ export default function AdminOrders() {
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 gap-2">
             <ShoppingBag className="w-12 h-12 text-gray-200" />
-            <p className="font-medium text-gray-400">No orders found</p>
+            <p className="font-medium text-gray-400">
+              {(dateFrom || dateTo) ? "Is date range mein koi order nahi mila" : "No orders found"}
+            </p>
+            {(dateFrom || dateTo) && (
+              <button
+                onClick={() => { setDateFrom(""); setDateTo(""); }}
+                className="text-xs text-blue-500 font-bold hover:underline mt-1"
+              >
+                Date filter hatao
+              </button>
+            )}
           </div>
         ) : (
           <>
@@ -3588,7 +3780,7 @@ export default function AdminOrders() {
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                   {filtered.map((o, idx) => {
-                    const srNo           = getSrNo(idx);         // descending
+                    const srNo           = getSrNo(idx);
                     const itemCount      = o.items?.length || 0;
                     const firstItem      = o.items?.[0];
                     const firstProduct   = firstItem?.product && typeof firstItem.product === "object" && firstItem.product.name ? firstItem.product : {};
@@ -3598,7 +3790,7 @@ export default function AdminOrders() {
                     return (
                       <tr key={o._id} className="hover:bg-gray-50/70 transition-colors">
 
-                        {/* ── Sr. No. ── */}
+                        {/* Sr. No. */}
                         <td className="py-3.5 px-4">
                           <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-slate-800 text-white text-xs font-black">
                             {srNo}
@@ -3607,9 +3799,14 @@ export default function AdminOrders() {
 
                         {/* Order ID */}
                         <td className="py-3.5 px-4">
-                          <span className="font-mono text-xs font-bold text-slate-500 bg-gray-100 px-2 py-1 rounded-lg">
-                            #{o._id.slice(-6).toUpperCase()}
-                          </span>
+                          <div className="flex flex-col gap-0.5">
+                            <span className="font-mono text-xs font-bold text-slate-500 bg-gray-100 px-2 py-1 rounded-lg">
+                              #{o._id.slice(-6).toUpperCase()}
+                            </span>
+                            <span className="text-[9px] text-slate-400 font-mono px-1">
+                              {o.createdAt ? new Date(o.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : ""}
+                            </span>
+                          </div>
                         </td>
 
                         {/* Customer */}
@@ -3803,6 +4000,7 @@ export default function AdminOrders() {
             <p className="text-xs text-gray-400">
               Showing <span className="font-semibold text-gray-600">{filtered.length}</span> orders
               {filter !== "all" && <> · filtered by <span className="font-semibold text-gray-600 capitalize">{filter}</span></>}
+              {(dateFrom || dateTo) && <> · <span className="font-semibold text-blue-500">{dateFrom || "…"} → {dateTo || "…"}</span></>}
             </p>
             <CSVExportButton orders={filtered} filter={filter} />
           </div>
